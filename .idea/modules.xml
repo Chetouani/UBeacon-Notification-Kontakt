@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/UBeacon.iml" filepath="$PROJECT_DIR$/UBeacon.iml" />
+      <module fileurl="file://$PROJECT_DIR$/UBeacon-Notification-master.iml" filepath="$PROJECT_DIR$/UBeacon-Notification-master.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android-sdk_1.0.5/android-sdk_1.0.5.iml" filepath="$PROJECT_DIR$/android-sdk_1.0.5/android-sdk_1.0.5.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/core-sdk-1.0.5/core-sdk-1.0.5.iml" filepath="$PROJECT_DIR$/core-sdk-1.0.5/core-sdk-1.0.5.iml" />
+      <module fileurl="file://$PROJECT_DIR$/gson-2.2.4/gson-2.2.4.iml" filepath="$PROJECT_DIR$/gson-2.2.4/gson-2.2.4.iml" />
+      <module fileurl="file://$PROJECT_DIR$/retrofit-1.9.0/retrofit-1.9.0.iml" filepath="$PROJECT_DIR$/retrofit-1.9.0/retrofit-1.9.0.iml" />
+    </modules>
+  </component>
+</project>
+
