@@ -3,18 +3,19 @@ package be.uchrony.ubeacon;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Dialog;
+import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.RemoteException;
-import android.support.v4.app.NotificationCompat;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -56,7 +57,7 @@ import retrofit.client.Response;
  * @version 0.1
  */
 
-public class MainActivity extends ActionBarActivity{
+public class MainActivity extends Activity{
 
     // Balise utilisé pour le debuguage
     private String TAG_DEBUG = "TAG_DEBUG_MainActivity";
@@ -84,7 +85,9 @@ public class MainActivity extends ActionBarActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        getActionBar().setDisplayHomeAsUpEnabled(false);
+        getActionBar().setBackgroundDrawable(
+                new ColorDrawable(getResources().getColor(R.color.Orange)));
         initElements();
         initBeacon();
 
@@ -135,6 +138,9 @@ public class MainActivity extends ActionBarActivity{
         if (enCoursDeScan) {
             startScan();
         }
+        NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(idNotification);
+        lancerPopUp(dernierProduit);
     }
 
     /*----------------------------------------------------------------------------------------*/
@@ -167,15 +173,33 @@ public class MainActivity extends ActionBarActivity{
             });
             dialog.show();
         } else {
+
             // TODO je stop le scan que quand on est en avant plan
+            NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+            //Création de la notification avec spécification de l'icône de la notification et le texte qui apparait à la création de la notification
+            Notification notification = new Notification(R.drawable.logo_notification, produit.getTitre(), System.currentTimeMillis());
+            //Définition de la redirection au moment du clic sur la notification. Dans notre cas la notification redirige vers notre application
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+            //Notification & Vibration
+            notification.setLatestEventInfo(this, produit.getTitre(),"cliquez pour en savoir plus", pendingIntent);
+            notification.vibrate = new long[] {0,200,100,200,100,200};
+            notificationManager.notify(idNotification, notification);
+
+            //----------------------------------------------------------
+            /*
             NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(this)
                             .setSmallIcon(R.drawable.kontakt_logo)
                             .setContentTitle(produit.getTitre())
-                            .setContentText("bla bla bla....");
+                            .setContentText("cliquez pour en savoir plus");
+            Intent resultIntent = new Intent(this, MainActivity.class);
+            PendingIntent resultPendingIntent =
+                    PendingIntent.getActivity(this,0,resultIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+            mBuilder.setContentIntent(resultPendingIntent);
             NotificationManager mNotificationManager
                     = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            mNotificationManager.notify(idNotification++, mBuilder.build());
+            mNotificationManager.notify(idNotification, mBuilder.build());
+            */
         }
 
     }
@@ -442,22 +466,22 @@ public class MainActivity extends ActionBarActivity{
         beaconManager.registerRangingListener(new BeaconManager.RangingListener() {
             @Override
             public void onBeaconsDiscovered(Region region, List<BeaconDevice> beaconDevices) {
-                   // si il y'a au moins un beacon trouvé
-                    if (beaconDevices.size() >0) {
-                        // chope le produit lier à ce beacon
-                        Produit p = Catalogue.getProduitLierAuUBeacon(beaconDevices.get(0)
-                                , listeUBeacons, listeProduits);
-                        // si il y'a un produit qui corespond au beacon
-                        // et qu'il n'est pas le même que le dernier produit montré
-                        // je lance un popUp, je mets à jour le nombre de viste ainsi que le
-                        // niveau de la battterie du beacon
-                        if (p != null && (dernierProduit == null || !dernierProduit.equals(p))) {
-                            lancerPopUp(p);
-                            MainActivity.this.miseAJourNbrVisite(p);
-                            MainActivity.this.miseAJourNiveauBatterie(beaconDevices.get(0), p);
-                            dernierProduit = p;
-                        }
+                // si il y'a au moins un beacon trouvé
+                if (beaconDevices.size() >0) {
+                    // chope le produit lier à ce beacon
+                    Produit p = Catalogue.getProduitLierAuUBeacon(beaconDevices.get(0)
+                            , listeUBeacons, listeProduits);
+                    // si il y'a un produit qui corespond au beacon
+                    // et qu'il n'est pas le même que le dernier produit montré
+                    // je lance un popUp, je mets à jour le nombre de viste ainsi que le
+                    // niveau de la battterie du beacon
+                    if (p != null && (dernierProduit == null || !dernierProduit.equals(p))) {
+                        lancerPopUp(p);
+                        MainActivity.this.miseAJourNbrVisite(p);
+                        MainActivity.this.miseAJourNiveauBatterie(beaconDevices.get(0), p);
+                        dernierProduit = p;
                     }
+                }
             }
         });
     }
