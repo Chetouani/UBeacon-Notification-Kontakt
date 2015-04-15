@@ -2,6 +2,7 @@ package be.uchrony.ubeacon;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -92,14 +93,8 @@ public class MainActivity extends Activity{
         initElements();
         initBeacon();
 
-        verificationBluetooth();
         verificationConnectionInternet();
-
-        // TODO soucis si on est pas en ligne le temps d'activer le net
-        // TODO on ne sera pas en ligne en gros faut attendre le while regle le souci
-        // TODO pour le moment ca marche
-        while (!estEnLigne());
-        recuperationUBeaconWebService();
+        verificationBluetooth();
     }
 
 
@@ -133,8 +128,8 @@ public class MainActivity extends Activity{
         }
     }
 
-    @Override
-    protected void onRestart() {
+   @Override
+   protected void onRestart() {
         super.onRestart();
         if (enCoursDeScan) {
             startScan();
@@ -177,7 +172,6 @@ public class MainActivity extends Activity{
             });
             dialog.show();
         } else {
-
             // TODO je stop le scan que quand on est en avant plan
             NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
             //Création de la notification avec spécification de l'icône de la notification et le texte qui apparait à la création de la notification
@@ -205,7 +199,6 @@ public class MainActivity extends Activity{
             mNotificationManager.notify(idNotification, mBuilder.build());
             */
         }
-
     }
 
     /**
@@ -411,10 +404,9 @@ public class MainActivity extends Activity{
      */
     private void verificationConnectionInternet() {
         if (!estEnLigne()) {
-            Toast.makeText(this, "Vous n\'êtes pas connecté à internet", Toast.LENGTH_LONG).show();
-            Toast.makeText(this, "Activation du Wifi", Toast.LENGTH_LONG).show();
-            WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-            wifi.setWifiEnabled(true);
+            quitterApplication("Vous devez vous connecté à internet\nL'application vas ce terminé");
+        } else {
+            recuperationUBeaconWebService();
         }
     }
 
@@ -435,10 +427,8 @@ public class MainActivity extends Activity{
     private void verificationBluetooth() {
         // Verifie que on posséde le bluetooth LE
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Toast.makeText(this, "Votre gsm n'a pas le bluetooth LE", Toast.LENGTH_SHORT).show();
-            //TODO quitter l'application si pas de BLE
+            quitterApplication("Votre gsm n'a pas le bluetooth LE\nL'application vas ce terminé");
         }
-
         if(!beaconManager.isBluetoothEnabled()) {
             final Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(intent, CODE_ACTIVATION_BLUETOOTH);
@@ -447,6 +437,20 @@ public class MainActivity extends Activity{
         } else {
             connect();
         }
+
+    }
+
+    private void quitterApplication(String msg) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(msg)
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        finish();
+                    }
+                });
+        Dialog dialog = builder.create();
+        dialog.show();
     }
 
     /*----------------------------------------------------------------------------------------*/
