@@ -77,6 +77,7 @@ public class MainActivity extends Activity{
     // Id de la notif, si on veut qu'une seul notif
     // soit lancer ne pas l'incrémenter
     private int idNotification = 1;
+    private boolean notifLancer = false;
     // petite fenetre lancé pour l'affichae de la pub
     private Dialog dialog;
 
@@ -138,9 +139,12 @@ public class MainActivity extends Activity{
         if (enCoursDeScan) {
             startScan();
         }
-        NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(idNotification);
-        lancerPopUp(dernierProduit);
+        if (notifLancer) {
+            NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.cancel(idNotification);
+            lancerPopUp(dernierProduit);
+            notifLancer = false;
+        }
     }
 
     /*----------------------------------------------------------------------------------------*/
@@ -184,7 +188,7 @@ public class MainActivity extends Activity{
             notification.setLatestEventInfo(this, produit.getTitre(),"cliquez pour en savoir plus", pendingIntent);
             notification.vibrate = new long[] {0,200,100,200,100,200};
             notificationManager.notify(idNotification, notification);
-
+            notifLancer = true;
             //----------------------------------------------------------
             /*
             NotificationCompat.Builder mBuilder =
