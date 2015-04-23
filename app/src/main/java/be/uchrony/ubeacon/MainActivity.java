@@ -475,10 +475,17 @@ public class MainActivity extends Activity{
             @Override
             public void onBeaconsDiscovered(Region region, List<BeaconDevice> beaconDevices) {
                 // si il y'a au moins un beacon trouvé
-                if (beaconDevices.size() >0) {
+                if (beaconDevices.size() > 0) {
                     // chope le produit lier à ce beacon
-                    Produit p = Catalogue.getProduitLierAuUBeacon(beaconDevices.get(0)
-                            , listeUBeacons, listeProduits);
+                    int i=0;
+                    Produit p = null;
+                    do {
+                        p = Catalogue.getProduitLierAuUBeacon(beaconDevices.get(i)
+                                , listeUBeacons, listeProduits);
+                        Log.d(TAG_DEBUG,beaconDevices.get(i).getBeaconUniqueId());
+                        i++;
+                    } while(p == null || i >= beaconDevices.size());
+                    Log.d(TAG_DEBUG,"--------------------");
                     // si il y'a un produit qui corespond au beacon
                     // et qu'il n'est pas le même que le dernier produit montré
                     // je lance un popUp, je mets à jour le nombre de viste ainsi que le
